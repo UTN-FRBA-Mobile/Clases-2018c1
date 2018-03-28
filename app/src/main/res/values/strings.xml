@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Clases-2018c1</string>
+    <string name="age">Edad: 99</string>
+    <string name="file">Lejajo: 999.999–9</string>
+    <string name="full_name">Nombre y apellido: xxxx xxxxo</string>
+    <string name="snackbar_default_msg">Esta es una Snackbar</string>
+    <string name="hi">hola, </string>
+    <string name="write_hello">Escribí hola</string>
 </resources>

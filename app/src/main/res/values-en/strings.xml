@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Classes-2018c1</string>
+    <string name="age">Age: 99</string>
+    <string name="file">File: 999.999–9</string>
+    <string name="full_name">Full name: xxxxx xxxxxx</string>
+    <string name="snackbar_default_msg">Here\'s a Snackbar</string>
+    <string name="hi">Hi, </string>
+    <string name="write_hello">Write hello</string>
+</resources>
