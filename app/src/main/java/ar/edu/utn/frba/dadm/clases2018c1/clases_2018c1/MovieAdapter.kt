@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.api.responses.Movie
+import com.squareup.picasso.Picasso
 
 class MovieAdapter(val context: Context, val movies: List<Movie>) : RecyclerView.Adapter<MovieAdapter.ViewHolder>() {
 
@@ -26,7 +27,6 @@ class MovieAdapter(val context: Context, val movies: List<Movie>) : RecyclerView
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-
         val poster: ImageView = itemView.findViewById(R.id.moviePoster)
         val title: TextView = itemView.findViewById(R.id.movieTitle)
         val year: TextView = itemView.findViewById(R.id.movieYear)
@@ -34,7 +34,7 @@ class MovieAdapter(val context: Context, val movies: List<Movie>) : RecyclerView
         fun bind(movie: Movie) {
             title.text = movie.title
             year.text = movie.year
-            ImageLoader.instance.loadImage(movie.poster, poster)
+            Picasso.get().load(movie.poster).placeholder(android.R.drawable.ic_media_play).into(poster)
         }
     }
 }
