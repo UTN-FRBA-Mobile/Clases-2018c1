@@ -55,6 +55,8 @@ class MainActivity : AppCompatActivity() {
         val title = titleInput.text.toString()
         executor.submit(OmdbApi.getMovie(apiKey, title, object : Callback<Movie> {
             override fun onSuccess(movie: Movie) {
+
+
                 runOnUiThread {
                     setLoading(false)
                     if (movie.response) {

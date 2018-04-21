@@ -80,6 +80,7 @@ class SplashActivity : AppCompatActivity() {
     }
     fun launchMain() {
         startActivity(Intent(this, MainActivityJava::class.java))
+        this.finish()
     }
 
 }
