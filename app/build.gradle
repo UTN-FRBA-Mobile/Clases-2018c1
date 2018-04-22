@@ -41,6 +41,8 @@ dependencies {
 
     implementation 'com.google.firebase:firebase-core:15.0.0'
 
+    implementation "android.arch.persistence.room:runtime:1.0.0"
+    annotationProcessor "android.arch.persistence.room:compiler:1.0.0"
 }
 repositories {
     mavenCentral()

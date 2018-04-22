@@ -74,13 +74,12 @@ class SplashActivity : AppCompatActivity() {
         }
     }
 
-
     fun showError(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show()
     }
     fun launchMain() {
         startActivity(Intent(this, MainActivityJava::class.java))
+        //startActivity(Intent(this, MainActivity::class.java))
         this.finish()
     }
-
 }

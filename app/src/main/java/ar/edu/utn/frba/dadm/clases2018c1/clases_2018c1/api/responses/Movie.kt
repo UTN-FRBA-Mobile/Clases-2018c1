@@ -4,7 +4,7 @@ import java.io.Serializable
 
 class Movie: Serializable {
 
-    var response: Boolean = false
+    //var response: Boolean = false
     var title: String? = null
     var year: String? = null
     var poster: String? = null

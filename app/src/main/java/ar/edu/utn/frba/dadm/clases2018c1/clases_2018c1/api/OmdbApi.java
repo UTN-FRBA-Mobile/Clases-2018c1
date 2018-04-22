@@ -8,6 +8,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 
 import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.api.responses.Movie;
+import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.api.responses.MovieSearch;
 
 /**
  * Created by emanuel on 10/4/17.
@@ -17,15 +18,15 @@ public class OmdbApi {
 
     private static final String TAG = OmdbApi.class.getName();
 
-    public static Runnable getMovie(String apiKey, String title, final Callback<Movie> callback) {
+    public static Runnable getMovies(String apiKey, String title, final Callback<MovieSearch> callback) {
         final URL url;
         try {
-            url = new URL("http://www.omdbapi.com/?apikey=" + apiKey + "&t=" + URLEncoder.encode(title, "UTF-8"));
+            url = new URL("http://www.omdbapi.com/?apikey=" + apiKey + "&s=" + URLEncoder.encode(title, "UTF-8"));
         }
         catch (MalformedURLException | UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
-        return getRequest(url, Movie.class, callback);
+        return getRequest(url, MovieSearch.class, callback);
     }
 
     private static <T> Runnable getRequest(final URL url, final Class<T> type, final Callback<T> callback) {

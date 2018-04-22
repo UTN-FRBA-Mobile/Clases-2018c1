@@ -33,4 +33,21 @@
         android:layout_alignParentEnd="true"
         android:layout_margin="5dp"
         tools:text="Año"/>
+
+    <ImageView
+        android:id="@+id/set_starred"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_set_starred"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"/>
+
+    <ImageView
+        android:id="@+id/unset_starred"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_unset_starred"
+        android:visibility="gone"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"/>
 </RelativeLayout>

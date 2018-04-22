@@ -9,6 +9,7 @@ import android.widget.*
 import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.api.Callback
 import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.api.OmdbApi
 import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.api.responses.Movie
+import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.api.responses.MovieSearch
 import java.util.concurrent.Executors
 
 class MainActivity : AppCompatActivity() {
@@ -53,14 +54,15 @@ class MainActivity : AppCompatActivity() {
         setLoading(true)
         val apiKey = "7a9f6b43"
         val title = titleInput.text.toString()
-        executor.submit(OmdbApi.getMovie(apiKey, title, object : Callback<Movie> {
-            override fun onSuccess(movie: Movie) {
-
+        executor.submit(OmdbApi.getMovies(apiKey, title, object : Callback<MovieSearch> {
+            override fun onSuccess(movieSearch: MovieSearch) {
 
                 runOnUiThread {
                     setLoading(false)
-                    if (movie.response) {
-                        addMovie(movie)
+                    if (movieSearch.response) {
+                        for (movie in movieSearch.search!!){
+                            addMovie(movie)
+                        }
                     }
                     else {
                         showError(null)

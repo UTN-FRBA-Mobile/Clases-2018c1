@@ -1,5 +1,7 @@
 package ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1;
 
+import android.annotation.SuppressLint;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -24,9 +26,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.api.responses.Movie;
+import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.api.responses.MovieSearch;
 import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.apifwk.Api;
 import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.apifwk.Api2;
 import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.persistence.MyPreferences;
+import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.persistence.db.AppDatabase;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -50,7 +54,6 @@ public class MainActivityJava extends AppCompatActivity implements SearchedMovie
     @BindView(R.id.favButton) View favButton;
     @BindView(R.id.recyclerView) RecyclerView recyclerView;
     @BindView(R.id.searchRecyclerView) RecyclerView searchRecyclerView;
-    List<Movie> movies;
     MovieAdapter adapter;
     SearchedMoviesAdapter searchedMoviesAdapter;
 
@@ -66,7 +69,13 @@ public class MainActivityJava extends AppCompatActivity implements SearchedMovie
         ButterKnife.bind(this);
         api = createNetworkClient(Api.class, "http://www.omdbapi.com");
         api2 = createNetworkClient(Api2.class, "https://utnmobi.firebaseio.com/");
-        movies = new ArrayList<>();
+
+        setupViews();
+    }
+
+    void setupViews() {
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        searchRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         titleInput.addTextChangedListener(new TextWatcher() {
             @Override
@@ -87,26 +96,6 @@ public class MainActivityJava extends AppCompatActivity implements SearchedMovie
                 }
             }
         });
-
-        setupViews();
-    }
-
-    void setupViews() {
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new MovieAdapter(this, movies);
-        recyclerView.setAdapter(adapter);
-//        recyclerView.addOnItemTouchListener(new RecyclerView.SimpleOnItemTouchListener() {
-//            @Override
-//            public void onTouchEvent(RecyclerView rv, MotionEvent e) {
-//                View child = rv.findChildViewUnder(e.getX(), e.getY());
-//                if (child != null) {
-//                    //findMovie(((TextView)child).getText().toString());
-//                    Toast.makeText(MainActivityJava.this, "HOLA", Toast.LENGTH_SHORT).show();
-//                }
-//            }
-//        });
-
-        searchRecyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
     @OnClick(R.id.findButton)
@@ -120,55 +109,92 @@ public class MainActivityJava extends AppCompatActivity implements SearchedMovie
         setLoading(true);
         String  apiKey = "7a9f6b43";
 
-        api.findMovie(apiKey, title).enqueue(new Callback<Movie>() {
+        api.findMovie(apiKey, title).enqueue(new Callback<MovieSearch>() {
             @Override
-            public void onResponse(Call<Movie> call, Response<Movie> response) {
-                setLoading(false);
+            public void onResponse(Call<MovieSearch> call, Response<MovieSearch> response) {
+                List<Movie> movies = new ArrayList<>();
                 if (response.isSuccessful()) {
                     MyPreferences.addMovieSearched(MainActivityJava.this, title);
 
-                    addMovie(response.body());
-                }
-                else {
-                    showError("Error...");
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Movie> call, Throwable t) {
-                showError(t);
-            }
-        });
-    }
-
-    @OnClick(R.id.favButton)
-    void favMovie() {
-        setLoading(true);
-        String  apiKey = "7a9f6b43";
-        String title = titleInput.getText().toString();
-        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        api2.findMovie(uid).enqueue(new Callback<List<Movie>>() {
-            @Override
-            public void onResponse(Call<List<Movie>> call, Response<List<Movie>> response) {
-                setLoading(false);
-                if (response.isSuccessful()) {
-                    if(response.body() != null){
-                        for(Movie m : response.body()) {
-                            addMovie(m);
-                        }
+                    if(response.body() != null && response.body().getSearch() != null){
+                        movies.addAll(response.body().getSearch());
                     }
                 }
                 else {
                     showError("Error...");
                 }
+
+                setLoading(false);
+
+                adapter = new MovieAdapter(MainActivityJava.this, movies);
+                recyclerView.setAdapter(adapter);
             }
 
             @Override
-            public void onFailure(Call<List<Movie>> call, Throwable t) {
-                setLoading(false);
+            public void onFailure(Call<MovieSearch> call, Throwable t) {
                 showError(t);
             }
         });
+    }
+
+//    @OnClick(R.id.favButton)
+//    void favMovie() {
+//        setLoading(true);
+//        String  apiKey = "7a9f6b43";
+//        String title = titleInput.getText().toString();
+//        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+//        api2.findMovie(uid).enqueue(new Callback<List<Movie>>() {
+//            @Override
+//            public void onResponse(Call<List<Movie>> call, Response<List<Movie>> response) {
+//                setLoading(false);
+//                if (response.isSuccessful()) {
+//                    if(response.body() != null){
+//                        for(Movie m : response.body()) {
+//                            addMovie(m);
+//                        }
+//                    }
+//                }
+//                else {
+//                    showError("Error...");
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<List<Movie>> call, Throwable t) {
+//                setLoading(false);
+//                showError(t);
+//            }
+//        });
+//    }
+
+    @SuppressLint("StaticFieldLeak")
+    @OnClick(R.id.favButton)
+    void favMovie() {
+        setLoading(true);
+        new AsyncTask<Void, Void, List<ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.persistence.db.entities.Movie>>() {
+            @Override
+            protected List<ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.persistence.db.entities.Movie> doInBackground(Void... params) {
+                return AppDatabase.getInstance(MainActivityJava.this).movieDao().getAll();
+            }
+
+            @Override
+            protected void onPostExecute(List<ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.persistence.db.entities.Movie> response) {
+                List<Movie> starredMovies = new ArrayList<>();
+                for (ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.persistence.db.entities.Movie starredMovie : response){
+                    Movie movie = new Movie();
+                    movie.setTitle(starredMovie.title);
+                    movie.setYear(starredMovie.year);
+                    //movie.poster
+                    starredMovies.add(movie);
+                }
+
+                recyclerView.setLayoutManager(new LinearLayoutManager(MainActivityJava.this));
+                adapter = new MovieAdapter(MainActivityJava.this, starredMovies);
+                recyclerView.setAdapter(adapter);
+
+                setLoading(false);
+            }
+        }.execute();
     }
 
     void showHistory(String termSearched) {
@@ -210,11 +236,11 @@ public class MainActivityJava extends AppCompatActivity implements SearchedMovie
         favButton.setEnabled(!isLoading);
     }
 
-    void addMovie(Movie movie) {
-        movies.add(0, movie);
-        adapter.notifyItemInserted(0);
-        recyclerView.scrollToPosition(0);
-    }
+//    void addMovie(Movie movie) {
+//        movies.add(0, movie);
+//        adapter.notifyItemInserted(0);
+//        recyclerView.scrollToPosition(0);
+//    }
 
     void showError(Throwable error) {
         showError(error.toString());
