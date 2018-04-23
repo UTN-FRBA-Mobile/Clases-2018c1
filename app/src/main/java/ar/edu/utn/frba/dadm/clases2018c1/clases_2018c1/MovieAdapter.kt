@@ -42,24 +42,7 @@ class MovieAdapter(private val context: Context, private val movies: List<ar.edu
         var storedMovie: ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.storage.db.entities.Movie? = null
 
         fun bind(movie: Movie) {
-            title.text = movie.title
-            year.text = movie.year
-
-            val fsPosterUri = ExternalStorage.getFileUri(movie.title!!)
-            //val fsPosterUri = ExternalStorage.getCacheFileUri(context, movie.title!!)
-            //val fsPosterUri = InternalStorage.getFileUri(context, movie.title!!)
-            //val fsPosterUri = InternalStorage.getCacheFileUri(context, movie.title!!)
-            if(fsPosterUri == null){
-                if(storePostersInFs){
-                    Picasso.get().load(movie.poster).placeholder(android.R.drawable.ic_media_play).into(getTarget(context, poster, movie.title!!))
-                } else {
-                    Picasso.get().load(movie.poster).placeholder(android.R.drawable.ic_media_play).into(poster)
-                }
-            } else {
-                Picasso.get().load(fsPosterUri).placeholder(android.R.drawable.ic_media_play).into(poster)
-            }
-
-            object : AsyncTask<Void, Void, ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.storage.db.entities.Movie>() {
+            class BindAsync : AsyncTask<Void, Void, ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.storage.db.entities.Movie>() {
                 override fun doInBackground(vararg params: Void): ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.storage.db.entities.Movie? {
                     return movieDao.getByTitle(title.text.toString())
                 }
@@ -79,10 +62,42 @@ class MovieAdapter(private val context: Context, private val movies: List<ar.edu
 
                     setUpUnsetStarred()
                 }
-            }.execute()
+            }
+
+            title.text = movie.title
+            year.text = movie.year
+
+            val fsPosterUri = ExternalStorage.getFileUri(movie.title!!)
+            //val fsPosterUri = ExternalStorage.getCacheFileUri(context, movie.title!!)
+            //val fsPosterUri = InternalStorage.getFileUri(context, movie.title!!)
+            //val fsPosterUri = InternalStorage.getCacheFileUri(context, movie.title!!)
+            if(fsPosterUri == null){
+                if(storePostersInFs){
+                    Picasso.get().load(movie.poster).placeholder(android.R.drawable.ic_media_play).into(getTarget(context, poster, movie.title!!))
+                } else {
+                    Picasso.get().load(movie.poster).placeholder(android.R.drawable.ic_media_play).into(poster)
+                }
+            } else {
+                Picasso.get().load(fsPosterUri).placeholder(android.R.drawable.ic_media_play).into(poster)
+            }
+
+            BindAsync().execute()
         }
 
         private fun setUpSetStarred(movie: Movie) {
+            class setUpSetStarredAsync : AsyncTask<Void, Void, Unit>() {
+                override fun doInBackground(vararg params: Void): Unit {
+                    movieDao.insert(storedMovie)
+                    0
+                    return Unit
+                }
+
+                override fun onPostExecute(response: Unit) {
+                    setStarred.visibility = View.GONE
+                    unsetStarred.visibility = View.VISIBLE
+                }
+            }
+
             setStarred.setOnClickListener({
                 storedMovie = ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.storage.db.entities.Movie()
 
@@ -90,35 +105,26 @@ class MovieAdapter(private val context: Context, private val movies: List<ar.edu
                 storedMovie!!.year = movie.year
                 storedMovie!!.poster = movie.poster
 
-                object : AsyncTask<Void, Void, Unit>() {
-                    override fun doInBackground(vararg params: Void): Unit {
-                        movieDao.insert(storedMovie)
-                        0
-                        return Unit
-                    }
-
-                    override fun onPostExecute(response: Unit) {
-                        setStarred.visibility = View.GONE
-                        unsetStarred.visibility = View.VISIBLE
-                    }
-                }.execute()
+                setUpSetStarredAsync().execute()
             })
         }
 
         private fun setUpUnsetStarred() {
+            class setUpUnsetStarredAsync : AsyncTask<Void, Void, Unit>() {
+                override fun doInBackground(vararg params: Void): Unit {
+                    movieDao.delete(storedMovie)
+
+                    return Unit
+                }
+
+                override fun onPostExecute(response: Unit) {
+                    setStarred.visibility = View.VISIBLE
+                    unsetStarred.visibility = View.GONE
+                }
+            }
+
             unsetStarred.setOnClickListener({
-                object : AsyncTask<Void, Void, Unit>() {
-                    override fun doInBackground(vararg params: Void): Unit {
-                        movieDao.delete(storedMovie)
-
-                        return Unit
-                    }
-
-                    override fun onPostExecute(response: Unit) {
-                        setStarred.visibility = View.VISIBLE
-                        unsetStarred.visibility = View.GONE
-                    }
-                }.execute()
+                setUpUnsetStarredAsync().execute()
             })
         }
 
