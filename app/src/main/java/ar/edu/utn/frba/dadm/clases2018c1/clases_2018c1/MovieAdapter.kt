@@ -9,11 +9,11 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.api.responses.Movie
-import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.persistence.db.AppDatabase
+import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.storage.db.AppDatabase
 import com.squareup.picasso.Picasso
 import android.graphics.drawable.Drawable
 import android.graphics.Bitmap
-import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.persistence.fileSystem.ExternalStorage
+import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.storage.fileSystem.ExternalStorage
 import java.lang.Exception
 
 class MovieAdapter(private val context: Context, private val movies: List<ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.api.responses.Movie>, private val storePostersInFs: Boolean) : RecyclerView.Adapter<MovieAdapter.ViewHolder>() {
@@ -32,23 +32,26 @@ class MovieAdapter(private val context: Context, private val movies: List<ar.edu
         holder.bind(movies[position])
     }
 
-    class ViewHolder(itemView: View, context: Context, private val storePostersInFs: Boolean) : RecyclerView.ViewHolder(itemView) {
+    class ViewHolder(itemView: View, private val context: Context, private val storePostersInFs: Boolean) : RecyclerView.ViewHolder(itemView) {
         val poster: ImageView = itemView.findViewById(R.id.moviePoster)
         val title: TextView = itemView.findViewById(R.id.movieTitle)
         val year: TextView = itemView.findViewById(R.id.movieYear)
         val setStarred: ImageView = itemView.findViewById(R.id.set_starred)
         val unsetStarred: ImageView = itemView.findViewById(R.id.unset_starred)
         val movieDao = AppDatabase.getInstance(context).movieDao()
-        var storedMovie: ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.persistence.db.entities.Movie? = null
+        var storedMovie: ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.storage.db.entities.Movie? = null
 
         fun bind(movie: Movie) {
             title.text = movie.title
             year.text = movie.year
 
             val fsPosterUri = ExternalStorage.getFileUri(movie.title!!)
+            //val fsPosterUri = ExternalStorage.getCacheFileUri(context, movie.title!!)
+            //val fsPosterUri = InternalStorage.getFileUri(context, movie.title!!)
+            //val fsPosterUri = InternalStorage.getCacheFileUri(context, movie.title!!)
             if(fsPosterUri == null){
                 if(storePostersInFs){
-                    Picasso.get().load(movie.poster).placeholder(android.R.drawable.ic_media_play).into(getTarget(poster, movie.title!!))
+                    Picasso.get().load(movie.poster).placeholder(android.R.drawable.ic_media_play).into(getTarget(context, poster, movie.title!!))
                 } else {
                     Picasso.get().load(movie.poster).placeholder(android.R.drawable.ic_media_play).into(poster)
                 }
@@ -56,12 +59,12 @@ class MovieAdapter(private val context: Context, private val movies: List<ar.edu
                 Picasso.get().load(fsPosterUri).placeholder(android.R.drawable.ic_media_play).into(poster)
             }
 
-            object : AsyncTask<Void, Void, ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.persistence.db.entities.Movie>() {
-                override fun doInBackground(vararg params: Void): ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.persistence.db.entities.Movie? {
+            object : AsyncTask<Void, Void, ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.storage.db.entities.Movie>() {
+                override fun doInBackground(vararg params: Void): ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.storage.db.entities.Movie? {
                     return movieDao.getByTitle(title.text.toString())
                 }
 
-                override fun onPostExecute(storedValue: ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.persistence.db.entities.Movie?) {
+                override fun onPostExecute(storedValue: ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.storage.db.entities.Movie?) {
                     storedMovie = storedValue
 
                     if(storedMovie == null){
@@ -81,7 +84,7 @@ class MovieAdapter(private val context: Context, private val movies: List<ar.edu
 
         private fun setUpSetStarred(movie: Movie) {
             setStarred.setOnClickListener({
-                storedMovie = ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.persistence.db.entities.Movie()
+                storedMovie = ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.storage.db.entities.Movie()
 
                 storedMovie!!.title = movie.title!!
                 storedMovie!!.year = movie.year
@@ -119,13 +122,16 @@ class MovieAdapter(private val context: Context, private val movies: List<ar.edu
             })
         }
 
-        private fun getTarget(view: ImageView, fileName: String): com.squareup.picasso.Target {
+        private fun getTarget(context: Context, view: ImageView, fileName: String): com.squareup.picasso.Target {
             return object : com.squareup.picasso.Target {
                 override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
                 }
 
                 override fun onBitmapLoaded(bitmap: Bitmap, from: Picasso.LoadedFrom) {
                     ExternalStorage.saveFile(bitmap, fileName)
+                    //ExternalStorage.saveFileInCache(context, bitmap, fileName)
+                    //InternalStorage.saveFile(context, bitmap, fileName)
+                    //InternalStorage.saveFileInCache(context, bitmap, fileName)
 
                     view.setImageBitmap(bitmap)
                 }

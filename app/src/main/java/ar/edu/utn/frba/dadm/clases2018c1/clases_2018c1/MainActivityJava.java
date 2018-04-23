@@ -1,6 +1,5 @@
 package ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1;
 
-import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -26,8 +25,8 @@ import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.api.responses.Movie;
 import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.api.responses.MovieSearch;
 import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.apifwk.Api;
 import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.apifwk.Api2;
-import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.persistence.MyPreferences;
-import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.persistence.db.AppDatabase;
+import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.storage.preferences.MyPreferences;
+import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.storage.db.AppDatabase;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -164,20 +163,19 @@ public class MainActivityJava extends AppCompatActivity implements SearchedMovie
 //        });
 //    }
 
-    @SuppressLint("StaticFieldLeak")
     @OnClick(R.id.favButton)
     void favMovie() {
         setLoading(true);
-        new AsyncTask<Void, Void, List<ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.persistence.db.entities.Movie>>() {
+        new AsyncTask<Void, Void, List<ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.storage.db.entities.Movie>>() {
             @Override
-            protected List<ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.persistence.db.entities.Movie> doInBackground(Void... params) {
+            protected List<ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.storage.db.entities.Movie> doInBackground(Void... params) {
                 return AppDatabase.getInstance(MainActivityJava.this).movieDao().getAll();
             }
 
             @Override
-            protected void onPostExecute(List<ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.persistence.db.entities.Movie> response) {
+            protected void onPostExecute(List<ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.storage.db.entities.Movie> response) {
                 List<Movie> starredMovies = new ArrayList<>();
-                for (ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.persistence.db.entities.Movie starredMovie : response){
+                for (ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.storage.db.entities.Movie starredMovie : response){
                     Movie movie = new Movie();
                     movie.setTitle(starredMovie.title);
                     movie.setYear(starredMovie.year);

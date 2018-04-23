@@ -1,4 +1,4 @@
-package ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.persistence.db.dao;
+package ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.storage.db.dao;
 
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Delete;
@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.persistence.db.entities.Movie;
+import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.storage.db.entities.Movie;
 
 @Dao
 public interface MovieDao {
