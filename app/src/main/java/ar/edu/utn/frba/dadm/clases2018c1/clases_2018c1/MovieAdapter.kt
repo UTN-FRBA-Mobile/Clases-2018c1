@@ -87,8 +87,9 @@ class MovieAdapter(private val context: Context, private val movies: List<ar.edu
         private fun setUpSetStarred(movie: Movie) {
             class setUpSetStarredAsync : AsyncTask<Void, Void, Unit>() {
                 override fun doInBackground(vararg params: Void): Unit {
+
                     movieDao.insert(storedMovie)
-                    0
+
                     return Unit
                 }
 
@@ -112,6 +113,10 @@ class MovieAdapter(private val context: Context, private val movies: List<ar.edu
         private fun setUpUnsetStarred() {
             class setUpUnsetStarredAsync : AsyncTask<Void, Void, Unit>() {
                 override fun doInBackground(vararg params: Void): Unit {
+                    ExternalStorage.deleteFile(storedMovie!!.title!!)
+                    //ExternalStorage.deleteFileFromCache(context, fileName)
+                    //InternalStorage.deleteFile(context, fileName)
+                    //InternalStorage.deleteFileFromCache(context, fileName)
                     movieDao.delete(storedMovie)
 
                     return Unit

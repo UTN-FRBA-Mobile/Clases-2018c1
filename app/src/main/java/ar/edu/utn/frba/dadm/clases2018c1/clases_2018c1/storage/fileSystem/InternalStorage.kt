@@ -32,6 +32,13 @@ class InternalStorage {
             return file
         }
 
+        fun deleteFile(context: Context, fileName: String) {
+            val file = File(context.filesDir.path + "/" + fileName)
+            if (file.exists()) {
+                file.delete()
+            }
+        }
+
         fun getCacheFileUri(context: Context, fileName: String): String? {
             val file = File(context.cacheDir.path + "/" + fileName)
             if (file.exists()) {
@@ -53,6 +60,13 @@ class InternalStorage {
             }
 
             return file
+        }
+
+        fun deleteFileFromCache(context: Context, fileName: String) {
+            val file = File(context.filesDir.path + "/" + fileName)
+            if (file.exists()) {
+                file.delete()
+            }
         }
     }
 }

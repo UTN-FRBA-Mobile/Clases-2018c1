@@ -33,6 +33,13 @@ class ExternalStorage {
             return file
         }
 
+        fun deleteFile(fileName: String) {
+            val file = File(getAppFolder() + fileName)
+            if (file.exists()) {
+                file.delete()
+            }
+        }
+
         fun getCacheFileUri(context: Context, fileName: String): String? {
             val file = File(context.externalCacheDir.path + fileName)
             if (file.exists()) {
@@ -54,6 +61,13 @@ class ExternalStorage {
             }
 
             return file
+        }
+
+        fun deleteFileFromCache(context: Context, fileName: String) {
+            val file = File(context.externalCacheDir.path + fileName)
+            if (file.exists()) {
+                file.delete()
+            }
         }
 
         private fun getAppFolder(): String {
