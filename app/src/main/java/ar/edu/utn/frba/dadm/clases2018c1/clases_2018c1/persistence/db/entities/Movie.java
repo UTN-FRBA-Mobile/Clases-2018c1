@@ -12,5 +12,5 @@ public class Movie {
 
     public String year;
 
-    public String imageUri;
+    public String poster;
 }

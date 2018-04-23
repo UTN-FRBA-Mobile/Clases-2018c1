@@ -41,7 +41,7 @@ class MainActivity : AppCompatActivity() {
             findMovie()
         }
         recyclerView.layoutManager = LinearLayoutManager(this)
-        adapter = MovieAdapter(this, movies)
+        adapter = MovieAdapter(this, movies, false)
         recyclerView.adapter = adapter
     }
 

@@ -1,6 +1,5 @@
 package ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.os.AsyncTask
 import android.support.v7.widget.RecyclerView
@@ -12,8 +11,12 @@ import android.widget.TextView
 import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.api.responses.Movie
 import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.persistence.db.AppDatabase
 import com.squareup.picasso.Picasso
+import android.graphics.drawable.Drawable
+import android.graphics.Bitmap
+import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.persistence.fileSystem.ExternalStorage
+import java.lang.Exception
 
-class MovieAdapter(val context: Context, val movies: List<ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.api.responses.Movie>) : RecyclerView.Adapter<MovieAdapter.ViewHolder>() {
+class MovieAdapter(private val context: Context, private val movies: List<ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.api.responses.Movie>, private val storePostersInFs: Boolean) : RecyclerView.Adapter<MovieAdapter.ViewHolder>() {
 
     val inflater = LayoutInflater.from(context)
 
@@ -22,14 +25,14 @@ class MovieAdapter(val context: Context, val movies: List<ar.edu.utn.frba.dadm.c
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(inflater.inflate(R.layout.movie_item, parent, false), context)
+        return ViewHolder(inflater.inflate(R.layout.movie_item, parent, false), context, storePostersInFs)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(movies[position])
     }
 
-    class ViewHolder(itemView: View, val context: Context) : RecyclerView.ViewHolder(itemView) {
+    class ViewHolder(itemView: View, context: Context, private val storePostersInFs: Boolean) : RecyclerView.ViewHolder(itemView) {
         val poster: ImageView = itemView.findViewById(R.id.moviePoster)
         val title: TextView = itemView.findViewById(R.id.movieTitle)
         val year: TextView = itemView.findViewById(R.id.movieYear)
@@ -41,7 +44,17 @@ class MovieAdapter(val context: Context, val movies: List<ar.edu.utn.frba.dadm.c
         fun bind(movie: Movie) {
             title.text = movie.title
             year.text = movie.year
-            Picasso.get().load(movie.poster).placeholder(android.R.drawable.ic_media_play).into(poster)
+
+            val fsPosterUri = ExternalStorage.getFileUri(movie.title!!)
+            if(fsPosterUri == null){
+                if(storePostersInFs){
+                    Picasso.get().load(movie.poster).placeholder(android.R.drawable.ic_media_play).into(getTarget(poster, movie.title!!))
+                } else {
+                    Picasso.get().load(movie.poster).placeholder(android.R.drawable.ic_media_play).into(poster)
+                }
+            } else {
+                Picasso.get().load(fsPosterUri).placeholder(android.R.drawable.ic_media_play).into(poster)
+            }
 
             object : AsyncTask<Void, Void, ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.persistence.db.entities.Movie>() {
                 override fun doInBackground(vararg params: Void): ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.persistence.db.entities.Movie? {
@@ -59,43 +72,67 @@ class MovieAdapter(val context: Context, val movies: List<ar.edu.utn.frba.dadm.c
                         unsetStarred.visibility = View.VISIBLE
                     }
 
-                    setStarred.setOnClickListener({
-                        storedMovie = ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.persistence.db.entities.Movie()
+                    setUpSetStarred(movie)
 
-                        storedMovie!!.title = movie.title!!
-                        storedMovie!!.year = movie.year
-                        storedMovie!!.imageUri = ""
-
-                        object : AsyncTask<Void, Void, Unit>() {
-                            override fun doInBackground(vararg params: Void): Unit {
-                                movieDao.insert(storedMovie)
-0
-                                return Unit
-                            }
-
-                            override fun onPostExecute(response: Unit) {
-                                setStarred.visibility = View.GONE
-                                unsetStarred.visibility = View.VISIBLE
-                            }
-                        }.execute()
-                    })
-
-                    unsetStarred.setOnClickListener({
-                        object : AsyncTask<Void, Void, Unit>() {
-                            override fun doInBackground(vararg params: Void): Unit {
-                                movieDao.delete(storedMovie)
-
-                                return Unit
-                            }
-
-                            override fun onPostExecute(response: Unit) {
-                                setStarred.visibility = View.VISIBLE
-                                unsetStarred.visibility = View.GONE
-                            }
-                        }.execute()
-                    })
+                    setUpUnsetStarred()
                 }
             }.execute()
+        }
+
+        private fun setUpSetStarred(movie: Movie) {
+            setStarred.setOnClickListener({
+                storedMovie = ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.persistence.db.entities.Movie()
+
+                storedMovie!!.title = movie.title!!
+                storedMovie!!.year = movie.year
+                storedMovie!!.poster = movie.poster
+
+                object : AsyncTask<Void, Void, Unit>() {
+                    override fun doInBackground(vararg params: Void): Unit {
+                        movieDao.insert(storedMovie)
+                        0
+                        return Unit
+                    }
+
+                    override fun onPostExecute(response: Unit) {
+                        setStarred.visibility = View.GONE
+                        unsetStarred.visibility = View.VISIBLE
+                    }
+                }.execute()
+            })
+        }
+
+        private fun setUpUnsetStarred() {
+            unsetStarred.setOnClickListener({
+                object : AsyncTask<Void, Void, Unit>() {
+                    override fun doInBackground(vararg params: Void): Unit {
+                        movieDao.delete(storedMovie)
+
+                        return Unit
+                    }
+
+                    override fun onPostExecute(response: Unit) {
+                        setStarred.visibility = View.VISIBLE
+                        unsetStarred.visibility = View.GONE
+                    }
+                }.execute()
+            })
+        }
+
+        private fun getTarget(view: ImageView, fileName: String): com.squareup.picasso.Target {
+            return object : com.squareup.picasso.Target {
+                override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
+                }
+
+                override fun onBitmapLoaded(bitmap: Bitmap, from: Picasso.LoadedFrom) {
+                    ExternalStorage.saveFile(bitmap, fileName)
+
+                    view.setImageBitmap(bitmap)
+                }
+
+                override fun onPrepareLoad(placeHolderDrawable: Drawable){
+                }
+            }
         }
     }
 }

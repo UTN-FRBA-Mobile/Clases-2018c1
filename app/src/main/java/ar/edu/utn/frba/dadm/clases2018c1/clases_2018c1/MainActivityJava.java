@@ -9,14 +9,11 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.GsonBuilder;
 
@@ -126,7 +123,7 @@ public class MainActivityJava extends AppCompatActivity implements SearchedMovie
 
                 setLoading(false);
 
-                adapter = new MovieAdapter(MainActivityJava.this, movies);
+                adapter = new MovieAdapter(MainActivityJava.this, movies, false);
                 recyclerView.setAdapter(adapter);
             }
 
@@ -184,12 +181,12 @@ public class MainActivityJava extends AppCompatActivity implements SearchedMovie
                     Movie movie = new Movie();
                     movie.setTitle(starredMovie.title);
                     movie.setYear(starredMovie.year);
-                    //movie.poster
+                    movie.setPoster(starredMovie.poster);
                     starredMovies.add(movie);
                 }
 
                 recyclerView.setLayoutManager(new LinearLayoutManager(MainActivityJava.this));
-                adapter = new MovieAdapter(MainActivityJava.this, starredMovies);
+                adapter = new MovieAdapter(MainActivityJava.this, starredMovies, true);
                 recyclerView.setAdapter(adapter);
 
                 setLoading(false);
