@@ -1,6 +1,7 @@
 package ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1
 
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.AsyncTask
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -13,6 +14,7 @@ import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.storage.db.AppDatabase
 import com.squareup.picasso.Picasso
 import android.graphics.drawable.Drawable
 import android.graphics.Bitmap
+import android.support.v4.content.ContextCompat
 import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.storage.fileSystem.ExternalStorage
 import java.lang.Exception
 
@@ -113,8 +115,10 @@ class MovieAdapter(private val context: Context, private val movies: List<ar.edu
         private fun setUpUnsetStarred() {
             class setUpUnsetStarredAsync : AsyncTask<Void, Void, Unit>() {
                 override fun doInBackground(vararg params: Void): Unit {
-                    ExternalStorage.deleteFile(storedMovie!!.title!!)
-                    //ExternalStorage.deleteFileFromCache(context, fileName)
+                    if(ContextCompat.checkSelfPermission(context, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
+                        ExternalStorage.deleteFile(storedMovie!!.title!!)
+                        //ExternalStorage.deleteFileFromCache(context, fileName)
+                    }
                     //InternalStorage.deleteFile(context, fileName)
                     //InternalStorage.deleteFileFromCache(context, fileName)
                     movieDao.delete(storedMovie)
@@ -139,8 +143,10 @@ class MovieAdapter(private val context: Context, private val movies: List<ar.edu
                 }
 
                 override fun onBitmapLoaded(bitmap: Bitmap, from: Picasso.LoadedFrom) {
-                    ExternalStorage.saveFile(bitmap, fileName)
-                    //ExternalStorage.saveFileInCache(context, bitmap, fileName)
+                    if(ContextCompat.checkSelfPermission(context, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
+                        ExternalStorage.saveFile(bitmap, fileName)
+                        //ExternalStorage.saveFileInCache(context, bitmap, fileName)
+                    }
                     //InternalStorage.saveFile(context, bitmap, fileName)
                     //InternalStorage.saveFileInCache(context, bitmap, fileName)
 

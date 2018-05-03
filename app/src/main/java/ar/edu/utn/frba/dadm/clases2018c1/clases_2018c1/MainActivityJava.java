@@ -1,5 +1,7 @@
 package ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1;
 
+import android.annotation.SuppressLint;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -25,6 +27,7 @@ import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.api.responses.Movie;
 import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.api.responses.MovieSearch;
 import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.apifwk.Api;
 import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.apifwk.Api2;
+import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.permissions.Permissions;
 import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.storage.preferences.MyPreferences;
 import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.storage.db.AppDatabase;
 import butterknife.BindView;
@@ -165,6 +168,15 @@ public class MainActivityJava extends AppCompatActivity implements SearchedMovie
 
     @OnClick(R.id.favButton)
     void favMovie() {
+        Permissions.checkPermissions(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE, getString(R.string.external_storage_permission_reason), new Permissions.Callback(){
+            public void onSuccess(){
+                loadFavorites();
+            }
+        });
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    private void loadFavorites() {
         setLoading(true);
         new AsyncTask<Void, Void, List<ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.storage.db.entities.Movie>>() {
             @Override
@@ -175,7 +187,7 @@ public class MainActivityJava extends AppCompatActivity implements SearchedMovie
             @Override
             protected void onPostExecute(List<ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.storage.db.entities.Movie> response) {
                 List<Movie> starredMovies = new ArrayList<>();
-                for (ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.storage.db.entities.Movie starredMovie : response){
+                for (ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.storage.db.entities.Movie starredMovie : response) {
                     Movie movie = new Movie();
                     movie.setTitle(starredMovie.title);
                     movie.setYear(starredMovie.year);
@@ -190,6 +202,20 @@ public class MainActivityJava extends AppCompatActivity implements SearchedMovie
                 setLoading(false);
             }
         }.execute();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case Permissions.REQUEST_WRITE_EXTERNAL_STORAGE: {
+                //if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    loadFavorites();
+                //}
+                return;
+            }
+        }
+
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     void showHistory(String termSearched) {

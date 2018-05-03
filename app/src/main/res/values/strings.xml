@@ -2,4 +2,5 @@
     <string name="app_name">Clases-2018c1</string>
     <string name="findMovie">Buscar Peli</string>
     <string name="favMovies">Pelis Favoritas</string>
+    <string name="external_storage_permission_reason">Necesitamos acceso al almacenamiento para poder guardar en el dispositivo los posters de tus películas favoritas.</string>
 </resources>
