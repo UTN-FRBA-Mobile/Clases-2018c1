@@ -1,7 +1,6 @@
 package ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1;
 
 import android.annotation.SuppressLint;
-import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -27,6 +26,7 @@ import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.api.responses.Movie;
 import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.api.responses.MovieSearch;
 import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.apifwk.Api;
 import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.apifwk.Api2;
+import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.apifwk.CustomAuthenticator;
 import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.permissions.Permissions;
 import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.storage.preferences.MyPreferences;
 import ar.edu.utn.frba.dadm.clases2018c1.clases_2018c1.storage.db.AppDatabase;
@@ -274,7 +274,8 @@ public class MainActivityJava extends AppCompatActivity implements SearchedMovie
     public <T> T createNetworkClient(Class<T> apiClass, String baseUrl){
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-        OkHttpClient.Builder builder = new OkHttpClient.Builder().addInterceptor(interceptor);
+        CustomAuthenticator customAuthenticator = new CustomAuthenticator();
+        OkHttpClient.Builder builder = new OkHttpClient.Builder().addInterceptor(interceptor).authenticator(customAuthenticator);
 //        OkHttpClient client = enableTls12OnPreLollipop(builder).build();
         OkHttpClient client = builder.build();
 
