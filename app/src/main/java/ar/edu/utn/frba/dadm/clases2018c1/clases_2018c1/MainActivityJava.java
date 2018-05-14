@@ -168,7 +168,7 @@ public class MainActivityJava extends AppCompatActivity implements SearchedMovie
 
     @OnClick(R.id.favButton)
     void favMovie() {
-        Permissions.checkPermissions(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE, getString(R.string.external_storage_permission_reason), new Permissions.Callback(){
+        Permissions.checkForPermissions(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE, getString(R.string.external_storage_permission_reason), new Permissions.Callback(){
             public void onSuccess(){
                 loadFavorites();
             }

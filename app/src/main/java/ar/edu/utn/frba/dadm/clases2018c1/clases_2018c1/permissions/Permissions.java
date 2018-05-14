@@ -10,8 +10,12 @@ import android.support.v7.app.AlertDialog;
 public class Permissions {
     public static final int REQUEST_WRITE_EXTERNAL_STORAGE = 1;
 
-    public static void checkPermissions(Activity activity, String permissionCode, String reason, Callback callback){
-        if(ContextCompat.checkSelfPermission(activity, permissionCode) != PackageManager.PERMISSION_GRANTED){
+    public static boolean hasPermissions(Activity activity, String permissionCode){
+        return ContextCompat.checkSelfPermission(activity, permissionCode) != PackageManager.PERMISSION_GRANTED;
+    }
+
+    public static void checkForPermissions(Activity activity, String permissionCode, String reason, Callback callback){
+        if(hasPermissions(activity, permissionCode)){
             if (ActivityCompat.shouldShowRequestPermissionRationale(activity, permissionCode)) {
                 showStoragePermissionExplanation(activity, permissionCode, reason);
             } else {
